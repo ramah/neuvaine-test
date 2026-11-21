@@ -1,0 +1,48 @@
+---
+import data from '../data/neuvaine.json';
+---
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Test de neuvaine</title>
+<style is:global>
+:root{--bg:#f6f1e7;--ink:#241f1a;--mut:#6b6258;--acc:#1f3a5f;--line:#d9cfbd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Georgia,'Times New Roman',serif}
+header{padding:20px 18px 12px;border-bottom:1px solid var(--line)}h1{font-size:20px;line-height:1.25;margin:0 0 4px}
+.sub{color:var(--mut);font-size:14px;font-family:system-ui,sans-serif}
+.days{display:flex;gap:6px;overflow-x:auto;padding:12px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg)}
+.days button{flex:0 0 40px;height:40px;border:1px solid var(--line);background:#fff;color:var(--ink);font:600 15px system-ui,sans-serif;border-radius:2px}
+.days button.on{background:var(--acc);color:#fff;border-color:var(--acc)}.days button.today{outline:2px solid #b4893a;outline-offset:1px}
+main{padding:18px;max-width:640px;margin:0 auto}h2{font:700 13px system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:26px 0 8px}
+.day-title{font-size:19px;font-weight:700;margin:0 0 10px}.card{background:#fff;border:1px solid var(--line);padding:14px 16px;white-space:pre-line}
+.rem{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);padding:12px 14px;font:14px/1.4 system-ui,sans-serif}
+.rem b{display:block}.dot{width:34px;height:34px;background:var(--acc);flex:0 0 34px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.btn{border:1px solid var(--acc);background:var(--acc);color:#fff;padding:11px 16px;font:600 15px system-ui,sans-serif;border-radius:2px}
+.btn.alt{background:#fff;color:var(--acc)}.note{color:var(--mut);font:13px/1.45 system-ui,sans-serif;margin-top:22px;border-top:1px solid var(--line);padding-top:12px}
+details summary{cursor:pointer;font:600 15px system-ui,sans-serif;padding:8px 0}
+</style></head><body>
+<header><h1 id="t"></h1><div class="sub" id="d"></div></header>
+<div class="days" id="days"></div>
+<main>
+<div class="rem"><span class="dot"></span><div><b>Rappel de prière</b><span id="remtxt"></span></div></div>
+<h2>Prière du jour</h2><div class="day-title" id="dt"></div><div class="card" id="body"></div>
+<div class="row"><button class="btn" id="play">Écouter ce jour</button><button class="btn alt" id="stop">Arrêter</button></div>
+<h2>À répéter chaque jour</h2><div class="card" id="block"></div>
+<div id="introwrap"><h2>Prière d'introduction</h2><details><summary>Afficher le texte</summary><div class="card" id="intro"></div></details></div>
+<div id="tailwrap"><h2>Pour finir</h2><div class="card" id="tail"></div></div>
+<p class="note">Page de test, hors application. Les textes sont ceux reçus, sans aucune modification. Les mots « Notre Père … Je vous salue Marie … » sont abrégés dans l'original : la lecture à voix haute les prononce tels quels pour l'instant. La voix est celle de ton téléphone (voix système), pas celle de l'application.</p>
+</main>
+
+<script is:inline define:vars={{ D: data }}>
+document.getElementById('t').textContent=D.title;document.getElementById('d').textContent=D.dates;
+const start=new Date(D.start+'T00:00:00');const now=new Date();const idx=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-start)/86400000)+1;
+let cur=(idx>=1&&idx<=9)?idx:1;const box=document.getElementById('days');
+D.days.forEach(x=>{const b=document.createElement('button');b.textContent=x.n;if(x.n===idx)b.classList.add('today');b.onclick=()=>{cur=x.n;show()};box.appendChild(b)});
+function show(){const x=D.days[cur-1];[...box.children].forEach((b,i)=>b.classList.toggle('on',i===cur-1));
+document.getElementById('dt').textContent='Jour '+x.n+' : '+x.title;document.getElementById('body').textContent=x.body;
+document.getElementById('block').textContent=x.block;document.getElementById('intro').textContent=D.intro;
+document.getElementById('introwrap').style.display=cur===1?'block':'none';
+const tw=document.getElementById('tailwrap');tw.style.display=x.tail?'block':'none';document.getElementById('tail').textContent=x.tail;
+document.getElementById('remtxt').textContent='Jour '+x.n+' de la neuvaine : '+D.title.replace('Neuvaine à ','')+'. Il est l\'heure de prier. (08:00)';speechSynthesis.cancel()}
+function say(t){const u=new SpeechSynthesisUtterance(t.replace(/…/g,', '));u.lang='fr-FR';speechSynthesis.speak(u)}
+document.getElementById('play').onclick=()=>{speechSynthesis.cancel();const x=D.days[cur-1];if(cur===1)say(D.intro);say(x.title);say(x.body);say(x.block);if(x.tail)say(x.tail)};
+document.getElementById('stop').onclick=()=>speechSynthesis.cancel();show();
+</script></body></html>
