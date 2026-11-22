@@ -18,18 +18,20 @@ main{padding:18px;max-width:640px;margin:0 auto}h2{font:700 13px system-ui,sans-
 .row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.btn{border:1px solid var(--acc);background:var(--acc);color:#fff;padding:11px 16px;font:600 15px system-ui,sans-serif;border-radius:2px}
 .btn.alt{background:#fff;color:var(--acc)}.note{color:var(--mut);font:13px/1.45 system-ui,sans-serif;margin-top:22px;border-top:1px solid var(--line);padding-top:12px}
 details summary{cursor:pointer;font:600 15px system-ui,sans-serif;padding:8px 0}
-.card.sub{margin-top:8px}.lab{font:600 14px system-ui,sans-serif;color:var(--acc);margin:12px 0 4px}.lab:first-child{margin-top:0}</style></head><body>
+.card.sub{margin-top:8px}.lab{font:600 14px system-ui,sans-serif;color:var(--acc);margin:12px 0 4px}.lab:first-child{margin-top:0}.player{background:#fff;border:1px solid var(--line);padding:12px 14px;margin:14px 0}.player audio{width:100%;margin:8px 0}</style></head><body>
 <header><h1 id="t"></h1><div class="sub" id="d"></div></header>
 <div class="days" id="days"></div>
 <main>
 <div class="rem"><span class="dot"></span><div><b>Rappel de prière</b><span id="remtxt"></span></div></div>
+<div class="player"><div class="lab" id="plabel"></div><audio id="au" controls preload="none"></audio><div class="sub" id="pnote"></div></div>
 <h2>1. Prière d'introduction (chaque jour)</h2><div class="card" id="intro"></div>
 <h2>2. Prière du jour</h2><div class="day-title" id="dt"></div><div class="card" id="body"></div>
 <h2>3. À répéter chaque jour</h2><div class="card" id="block"></div>
 <div id="tailwrap"><h2>Pour finir</h2><div class="card" id="tail"></div></div>
 <p class="note">Page de test, hors application. Les textes de la neuvaine sont ceux reçus, sans modification. Le Notre Père et le Je vous salue Marie, abrégés dans le message d'origine, sont écrits en entier ici (formules courantes en français, à relire).</p>
+<p class="note">Voix : Piper, modèle fr_FR-siwis-medium (données SIWIS, Université d'Édimbourg, licence CC BY 4.0), le moteur utilisé dans l'application. Dans l'audio seulement, « prie: » est lu « priez » et les références bibliques sont épelées (« Genèse, chapitre 3, verset 1 »). Voix synthétique, pas un enregistrement.</p>
 </main>
-<script is:inline define:vars={{ D: data }}>
+<script is:inline define:vars={{ D: data, B: import.meta.env.BASE_URL }}>
 document.getElementById('t').textContent=D.title;document.getElementById('d').textContent=D.dates;
 const start=new Date(D.start+'T00:00:00');const now=new Date();const idx=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-start)/86400000)+1;
 let cur=(idx>=1&&idx<=9)?idx:1;const box=document.getElementById('days');
@@ -41,6 +43,12 @@ document.getElementById('intro').style.whiteSpace='pre-line';document.getElement
 document.getElementById('body').textContent=x.body;
 fill('block',[['Notre Père',D.notre_pere],['Je vous salue Marie',D.je_vous_salue_marie],['Invocations',x.block_rest]]);
 const tw=document.getElementById('tailwrap');tw.style.display=x.tail?'block':'none';document.getElementById('tail').textContent=x.tail;
-document.getElementById('remtxt').textContent='Jour '+x.n+' de la neuvaine : '+D.title.replace('Neuvaine à ','')+'. Il est l\'heure de prier. (08:00)'}
+document.getElementById('remtxt').textContent='Jour '+x.n+' de la neuvaine : '+D.title.replace('Neuvaine à ','')+'. Il est l\'heure de prier. (08:00)';loadAudio(x)}
+let pl=[],pn=[],pi=0;const au=document.getElementById('au');const base=B.replace(/\/$/,'')+'/audio/';
+function setPart(){document.getElementById('plabel').textContent='Écouter la journée : '+pn[pi]+' ('+(pi+1)+'/'+pn.length+')'}
+function loadAudio(x){pl=[base+'intro.m4a',base+'jour-'+x.n+'.m4a',base+'prieres.m4a'];pn=['introduction','prière du jour','prières à répéter'];
+if(x.tail){pl.push(base+'fin.m4a');pn.push('pour finir')}pi=0;au.pause();au.src=pl[0];setPart();
+document.getElementById('pnote').textContent='Les parties s\'enchaînent toutes seules.'}
+au.onended=()=>{if(pi<pl.length-1){pi++;au.src=pl[pi];setPart();au.play()}}
 show();
 </script></body></html>
