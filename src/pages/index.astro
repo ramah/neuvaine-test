@@ -40,7 +40,7 @@ function show(){const x=D.days[cur-1];[...box.children].forEach((b,i)=>b.classLi
 document.getElementById('dt').textContent='Jour '+x.n+' : '+x.title;
 document.getElementById('intro').style.whiteSpace='pre-line';document.getElementById('intro').textContent=D.intro;
 document.getElementById('body').textContent=x.body;
-fill('block',[['Notre Père',D.notre_pere],['Je vous salue Marie',D.je_vous_salue_marie],['',x.block_rest]]);
+fill('block',[['Notre Père',D.notre_pere],['Je vous salue Marie',D.je_vous_salue_marie],['Invocations',x.block_rest]]);
 const tw=document.getElementById('tailwrap');tw.style.display=x.tail?'block':'none';document.getElementById('tail').textContent=x.tail;
 document.getElementById('remtxt').textContent='Jour '+x.n+' de la neuvaine : '+D.title.replace('Neuvaine à ','')+'. Il est l\'heure de prier. (08:00)';speechSynthesis.cancel()}
 function say(t){const u=new SpeechSynthesisUtterance(t.replace(/…/g,', '));u.lang='fr-FR';speechSynthesis.speak(u)}
