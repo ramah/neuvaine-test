@@ -23,12 +23,11 @@ details summary{cursor:pointer;font:600 15px system-ui,sans-serif;padding:8px 0}
 <div class="days" id="days"></div>
 <main>
 <div class="rem"><span class="dot"></span><div><b>Rappel de prière</b><span id="remtxt"></span></div></div>
-<div class="row"><button class="btn" id="play">Écouter ce jour</button><button class="btn alt" id="stop">Arrêter</button></div>
 <h2>1. Prière d'introduction (chaque jour)</h2><div class="card" id="intro"></div>
 <h2>2. Prière du jour</h2><div class="day-title" id="dt"></div><div class="card" id="body"></div>
 <h2>3. À répéter chaque jour</h2><div class="card" id="block"></div>
 <div id="tailwrap"><h2>Pour finir</h2><div class="card" id="tail"></div></div>
-<p class="note">Page de test, hors application. Les textes de la neuvaine sont ceux reçus, sans modification. Le Notre Père et le Je vous salue Marie, abrégés dans le message d'origine, sont écrits en entier ici (formules courantes en français, à relire). La voix est celle de ton téléphone, pas celle de l'application.</p>
+<p class="note">Page de test, hors application. Les textes de la neuvaine sont ceux reçus, sans modification. Le Notre Père et le Je vous salue Marie, abrégés dans le message d'origine, sont écrits en entier ici (formules courantes en français, à relire).</p>
 </main>
 <script is:inline define:vars={{ D: data }}>
 document.getElementById('t').textContent=D.title;document.getElementById('d').textContent=D.dates;
@@ -42,8 +41,6 @@ document.getElementById('intro').style.whiteSpace='pre-line';document.getElement
 document.getElementById('body').textContent=x.body;
 fill('block',[['Notre Père',D.notre_pere],['Je vous salue Marie',D.je_vous_salue_marie],['Invocations',x.block_rest]]);
 const tw=document.getElementById('tailwrap');tw.style.display=x.tail?'block':'none';document.getElementById('tail').textContent=x.tail;
-document.getElementById('remtxt').textContent='Jour '+x.n+' de la neuvaine : '+D.title.replace('Neuvaine à ','')+'. Il est l\'heure de prier. (08:00)';speechSynthesis.cancel()}
-function say(t){const u=new SpeechSynthesisUtterance(t.replace(/…/g,', '));u.lang='fr-FR';speechSynthesis.speak(u)}
-document.getElementById('play').onclick=()=>{speechSynthesis.cancel();const x=D.days[cur-1];say(D.intro);say(x.title);say(x.body);say('Notre Père. '+D.notre_pere);say('Je vous salue Marie. '+D.je_vous_salue_marie);say(x.block_rest);if(x.tail)say(x.tail)};
-document.getElementById('stop').onclick=()=>speechSynthesis.cancel();show();
+document.getElementById('remtxt').textContent='Jour '+x.n+' de la neuvaine : '+D.title.replace('Neuvaine à ','')+'. Il est l\'heure de prier. (08:00)'}
+show();
 </script></body></html>
