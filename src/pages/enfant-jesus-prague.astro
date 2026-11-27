@@ -1,0 +1,49 @@
+---
+import data from '../data/prague.json';
+import '../styles/base.css';
+---
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Neuvaine de 9 heures</title></head><body>
+<header><a class="back" href={import.meta.env.BASE_URL}>← Toutes les neuvaines</a><h1 id="t"></h1><div class="sub" id="d"></div></header>
+<main>
+<h2>Quand commencer ?</h2>
+<div class="tim"><label for="st">Première heure à</label><input type="time" id="st"><button class="btn alt" id="now">Maintenant</button></div>
+<div id="slots"></div>
+<div class="rem" style="margin-top:14px"><span class="dot"></span><div><b>Rappel de prière</b><span id="remtxt"></span></div></div>
+<h2>Prière à dire à chaque heure</h2>
+<div class="player"><div class="lab">Écouter la prière de l'heure</div><audio id="au1" controls preload="none"></audio><div class="sub">Un silence de 12 secondes laisse le temps de formuler sa demande après chaque invocation.</div></div>
+<div class="card" id="prayer"></div>
+<h2 id="th"></h2>
+<div class="player"><div class="lab">Écouter l'action de grâce</div><audio id="au2" controls preload="none"></audio></div>
+<div class="card" id="thanks"></div>
+<p class="note">Page de test, hors application. Les textes sont ceux reçus, sans modification. Le message d'origine ne dit pas quand dire la prière d'action de grâce : nous l'avons placée après la 9e heure, à confirmer. Voix : Piper, modèle fr_FR-siwis-medium (données SIWIS, Université d'Édimbourg, licence CC BY 4.0), voix synthétique. Dans l'audio, les guillemets ne sont pas lus. L'heure de départ et les heures cochées sont gardées sur ton téléphone.</p>
+</main>
+<script is:inline define:vars={{ D: data, B: import.meta.env.BASE_URL }}>
+const base=B.replace(/\/$/,'')+'/audio/';
+document.getElementById('t').textContent=D.title;document.getElementById('d').textContent=D.sub;
+document.getElementById('au1').src=base+'prague-heure.m4a';document.getElementById('au2').src=base+'prague-merci.m4a';
+const pr=document.getElementById('prayer');
+D.prayers.forEach(t=>{const p=document.createElement('div');p.textContent=t;p.style.marginTop='10px';pr.appendChild(p);const c=document.createElement('div');c.textContent=D.cue;c.style.cssText='font:italic 14px system-ui,sans-serif;color:#6b6258;margin-top:4px';pr.appendChild(c)});
+document.getElementById('th').textContent=D.thanks_title.charAt(0)+D.thanks_title.slice(1).toLowerCase()+' (après la 9e heure)';
+const th=document.getElementById('thanks');D.thanks.forEach(t=>{const p=document.createElement('div');p.textContent=t;p.style.marginTop='10px';th.appendChild(p)});
+const pad=n=>String(n).padStart(2,'0');const hm=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
+const st=document.getElementById('st');
+function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+const n0=new Date();let startMin=load('pg_start',null);
+if(startMin===null){startMin=(n0.getHours()+1)*60;}
+let done=load('pg_done',[]);
+st.value=hm(startMin);
+function render(){const box=document.getElementById('slots');box.innerHTML='';const now=new Date();const nm=now.getHours()*60+now.getMinutes();let nextIdx=-1;
+for(let i=0;i<9;i++){const s=startMin+i*60;const row=document.createElement('label');row.className='slot';
+const cb=document.createElement('input');cb.type='checkbox';cb.checked=done.includes(i);cb.onchange=()=>{done=cb.checked?[...new Set([...done,i])]:done.filter(x=>x!==i);save('pg_done',done);render()};
+const b=document.createElement('b');b.textContent=(i===0?'1re':(i+1)+'e')+' heure';const t=document.createElement('span');t.textContent=hm(s);
+row.append(cb,b,t);if(cb.checked)row.classList.add('done');if(nm>=s%1440&&nm<s%1440+60&&s<1440+1440)row.classList.add('now');box.appendChild(row);
+if(nextIdx<0&&!done.includes(i))nextIdx=i}
+const r=document.getElementById('remtxt');
+if(nextIdx<0)r.textContent='Les 9 heures sont faites. Il reste la prière d\'action de grâce.';
+else r.textContent=(nextIdx+1)+(nextIdx===0?'re':'e')+' heure sur 9 : neuvaine à l\'Enfant Jésus de Prague. Il est l\'heure de prier. ('+hm(startMin+nextIdx*60)+')'}
+st.onchange=()=>{const [h,m]=st.value.split(':').map(Number);startMin=h*60+m;save('pg_start',startMin);render()};
+document.getElementById('now').onclick=()=>{const n=new Date();startMin=n.getHours()*60+n.getMinutes();st.value=hm(startMin);save('pg_start',startMin);done=[];save('pg_done',done);render()};
+render();
+</script></body></html>
